@@ -19,16 +19,21 @@ export interface TableData {
 }
 
 export async function getUsers(): Promise<User[]> {
-  const res = await fetch("https://dummyjson.com/users?limit=100", {
-    cache: "no-store",
-  })
+  try {
+    const res = await fetch("https://dummyjson.com/users?limit=100", {
+      cache: "no-store",
+    })
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch users")
+    if (!res.ok) {
+      throw new Error("Failed to fetch users")
+    }
+
+    const { users } = await res.json()
+    return users
+  } catch (error) {
+    console.error("Error fetching users:", error)
+    return []
   }
-
-  const { users } = await res.json()
-  return users
 }
 
 export async function transformUsersToTableData(

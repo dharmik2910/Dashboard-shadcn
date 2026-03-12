@@ -43,3 +43,15 @@ export function FieldDescription({
     />
   )
 }
+
+export function FieldError({
+  className,
+  ...props
+}: React.ComponentProps<"p">) {
+  return (
+    <p
+      className={cn("text-sm font-medium text-destructive", className)}
+      {...props}
+    />
+  )
+}

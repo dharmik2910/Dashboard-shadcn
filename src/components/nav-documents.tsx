@@ -29,6 +29,8 @@ export function NavDocuments({
 }) {
   const { isMobile } = useSidebar()
 
+  if (items.length === 0) return null
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Documents</SidebarGroupLabel>
