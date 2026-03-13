@@ -4,18 +4,17 @@ import { useState } from "react";
 import { type User } from "@/lib/api";
 
 import {
-    Drawer,
-    DrawerClose,
-    DrawerContent,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-} from "@/components/ui/drawer";
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { z } from "zod";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { PlusIcon } from "lucide-react";
@@ -34,7 +33,6 @@ interface Props {
 }
 
 export default function CreateUser({ onAddUser }: Props) {
-    const isMobile = useIsMobile();
     const [open, setOpen] = useState(false);
 
     const [form, setForm] = useState({
@@ -109,17 +107,17 @@ export default function CreateUser({ onAddUser }: Props) {
     };
 
     return (
-        <Drawer open={open} onOpenChange={setOpen} direction={isMobile ? "bottom" : "right"}>
-            <DrawerTrigger asChild>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
                     <span className="hidden lg:inline">Add User</span>
                 </Button>
-            </DrawerTrigger>
+            </DialogTrigger>
 
-            <DrawerContent>
-                <DrawerHeader className="border-b pb-4">
-                    <DrawerTitle className="text-xl">Create New User</DrawerTitle>
-                </DrawerHeader>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Create New User</DialogTitle>
+                </DialogHeader>
 
                 <div className="flex flex-col gap-6 overflow-y-auto px-6 py-4">
                     <div className="space-y-6">
@@ -227,18 +225,18 @@ export default function CreateUser({ onAddUser }: Props) {
                     </div>
                 </div>
 
-                <DrawerFooter className="border-t pt-4 sticky bottom-0 bg-background">
+                <DialogFooter>
                     <Button
                         className="w-full sm:w-auto"
                         onClick={handleSubmit}
                     >
                         Create User
                     </Button>
-                    <DrawerClose asChild>
+                    <DialogClose asChild>
                         <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
-                    </DrawerClose>
-                </DrawerFooter>
-            </DrawerContent>
-        </Drawer>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

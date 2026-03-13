@@ -12,6 +12,7 @@ import {
   type UniqueIdentifier,
 } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   arrayMove,
   SortableContext,
@@ -41,14 +42,14 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -56,15 +57,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -73,27 +65,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Tabs,
-  TabsContent
-} from "@/components/ui/tabs"
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
   ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
   Columns3Icon,
   EllipsisVerticalIcon,
-  GripVerticalIcon,
-  PlusIcon,
-  UserPlusIcon
+  GripVerticalIcon
 } from "lucide-react"
 
 import { getUsers, type User } from "@/lib/api"
 import CreateUser from "./create-user"
 import { EditUserFields } from "./edit-user"
+import { DataTablePagination } from "./pagination"
+
 
 
 export const schema = z.object({
@@ -338,14 +322,8 @@ export function DataTable() {
   }
 
   return (
-    <Tabs
-      defaultValue="outline"
-      className="w-full flex-col justify-start gap-6"
-    >
+    <>
       <div className="flex items-center justify-between px-4 lg:px-236">
-        <Label htmlFor="view-selector" className="sr-only">
-          View
-        </Label>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -382,190 +360,112 @@ export function DataTable() {
           <CreateUser onAddUser={handleAddUser} />
         </div>
       </div>
-      <TabsContent
-        value="outline"
-        className="relative flex flex-col gap-4 px-4 lg:px-6"
-      >
+      <div className="relative flex flex-col gap-4 px-4 lg:px-6">
         <div className="rounded-lg border">
-          <div className="relative max-h-[500px] overflow-y-auto">          <DndContext
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
-            sensors={sensors}
-            id={sortableId}
-          >
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead
-                          key={header.id}
-                          colSpan={header.colSpan}
-                          className="sticky top-0 z-30 bg-background"
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                        </TableHead>
-                      )
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
+          <div className="relative max-h-[500px] overflow-y-auto">
+            <DndContext
+              collisionDetection={closestCenter}
+              modifiers={[restrictToVerticalAxis]}
+              onDragEnd={handleDragEnd}
+              sensors={sensors}
+              id={sortableId}
+            >
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        return (
+                          <TableHead
+                            key={header.id}
+                            colSpan={header.colSpan}
+                            className="sticky top-0 z-30 bg-background"
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                          </TableHead>
+                        )
+                      })}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                      >
+                        Loading...
+                      </TableCell>
+                    </TableRow>
+                  ) : error ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center text-destructive"
+                      >
+                        {error}
+                      </TableCell>
+                    </TableRow>
+                  ) : table.getRowModel().rows?.length ? (
+                    <SortableContext
+                      items={dataIds}
+                      strategy={verticalListSortingStrategy}
                     >
-                      Loading...
-                    </TableCell>
-                  </TableRow>
-                ) : error ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center text-destructive"
-                    >
-                      {error}
-                    </TableCell>
-                  </TableRow>
-                ) : table.getRowModel().rows?.length ? (
-                  <SortableContext
-                    items={dataIds}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {table.getRowModel().rows.map((row) => (
-                      <DraggableRow key={row.id} row={row} />
-                    ))}
-                  </SortableContext>
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </DndContext>
-          </div>
-          <div className="flex items-center justify-between px-4">
-            <div className="flex w-full items-center gap-80 lg:w-fit">
-              <div className="hidden items-center gap-2 lg:flex">
-                <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                  Rows per page
-                </Label>
-                <Select
-                  value={`${table.getState().pagination.pageSize}`}
-                  onValueChange={(value) => {
-                    table.setPageSize(Number(value))
-                  }}
-                >
-                  <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                    <SelectValue
-                      placeholder={table.getState().pagination.pageSize}
-                    />
-                  </SelectTrigger>
-                  <SelectContent side="top">
-                    <SelectGroup>
-                      {[10, 20, 30, 40, 50].map((pageSize) => (
-                        <SelectItem key={pageSize} value={`${pageSize}`}>
-                          {pageSize}
-                        </SelectItem>
+                      {table.getRowModel().rows.map((row) => (
+                        <DraggableRow key={row.id} row={row} />
                       ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex w-fit items-center justify-center text-sm font-medium">
-                Page {table.getState().pagination.pageIndex + 1} of{" "}
-                {table.getPageCount()}
-              </div>
-              <div className="ml-auto flex items-center gap-2 lg:ml-0">
-                <Button
-                  variant="outline"
-                  className="hidden h-8 w-8 p-0 lg:flex"
-                  onClick={() => table.setPageIndex(0)}
-                  disabled={!table.getCanPreviousPage()}
-                >
-                  <span className="sr-only">Go to first page</span>
-                  <ChevronsLeftIcon
-                  />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="size-8"
-                  size="icon"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                >
-                  <span className="sr-only">Go to previous page</span>
-                  <ChevronLeftIcon
-                  />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="size-8"
-                  size="icon"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                >
-                  <span className="sr-only">Go to next page</span>
-                  <ChevronRightIcon
-                  />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="hidden size-8 lg:flex"
-                  size="icon"
-                  onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                  disabled={!table.getCanNextPage()}
-                >
-                  <span className="sr-only">Go to last page</span>
-                  <ChevronsRightIcon
-                  />
-                </Button>
-              </div>
-            </div>
+                    </SortableContext>
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                      >
+                        No results.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </DndContext>
           </div>
+          <DataTablePagination table={table} />
         </div>
-      </TabsContent>
-      <TabsContent
-        value="past-performance"
-        className="flex flex-col px-4 lg:px-6"
-      >
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent value="key-personnel" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent
-        value="focus-documents"
-        className="flex flex-col px-4 lg:px-6"
-      >
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-    </Tabs >
+      </div>
+    </>
   )
 }
 
-function TableCellViewer({ item, onUpdate }: { item: User; onUpdate: (user: User) => void }) {
+//profile pic name
+function TableCellViewer({
+  item,
+  onUpdate,
+}: {
+  item: User
+  onUpdate: (user: User) => void
+}) {
   return (
-    <EditUserDrawer user={item} onUpdate={onUpdate}>
-      <Button variant="link" className="w-fit px-0 text-left text-foreground">
+    <EditUserDialog user={item} onUpdate={onUpdate}>
+      <Button
+        variant="link"
+        className="flex items-center gap-2 px-0 text-left text-foreground"
+      >
+        <Avatar className="h-8 w-8">
+          <AvatarFallback>
+            {item.firstName.charAt(0)}
+            {item.lastName.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+
         {item.firstName} {item.lastName}
       </Button>
-    </EditUserDrawer>
+    </EditUserDialog>
   )
 }
 
@@ -583,7 +483,7 @@ function DataTableRowActions({
 
   return (
     <>
-      <EditUserDrawer
+      <EditUserDialog
         user={row.original}
         open={isEditOpen}
         onOpenChange={setIsEditOpen}
@@ -614,7 +514,7 @@ function DataTableRowActions({
   )
 }
 
-function EditUserDrawer({
+function EditUserDialog({
   user,
   children,
   open,
@@ -627,7 +527,6 @@ function EditUserDrawer({
   onOpenChange?: (open: boolean) => void
   onUpdate?: (user: User) => void
 }) {
-  const isMobile = useIsMobile()
   const [isValid, setIsValid] = React.useState(true)
   const [currentData, setCurrentData] = React.useState<User>(user)
 
@@ -643,15 +542,15 @@ function EditUserDrawer({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} direction={isMobile ? "bottom" : "right"}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       {children && (
-        <DrawerTrigger asChild>{children}</DrawerTrigger>
+        <DialogTrigger asChild>{children}</DialogTrigger>
       )}
-      <DrawerContent>
-        <DrawerHeader className="border-b pb-4">
-          <DrawerTitle className="text-xl">Edit User Information</DrawerTitle>
-        </DrawerHeader>
-        <div className="flex flex-col gap-6 overflow-y-auto px-6 py-4">
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit User Information</DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-6 overflow-y-auto py-4">
           <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
             <EditUserFields
               key={user.id}
@@ -663,7 +562,7 @@ function EditUserDrawer({
             />
           </form>
         </div>
-        <DrawerFooter className="border-t pt-4">
+        <DialogFooter>
           <Button
             onClick={handleUpdate}
             disabled={!isValid}
@@ -671,12 +570,12 @@ function EditUserDrawer({
           >
             Update Profile
           </Button>
-          <DrawerClose asChild>
+          <DialogClose asChild>
             <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { NavDocuments } from "@/components/nav-documents"
+
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {
@@ -74,7 +74,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ))}
         </SidebarMenu>
 
-        <NavDocuments items={[]} />
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
 

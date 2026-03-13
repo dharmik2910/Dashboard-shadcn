@@ -8,19 +8,19 @@ export interface User {
   age: number
 }
 
-export interface TableData {
+export interface User {
   id: number
-  header: string
-  type: string
-  status: string
-  target: string
-  limit: string
-  reviewer: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  birthDate: string
+  age: number
 }
 
 export async function getUsers(): Promise<User[]> {
   try {
-    const res = await fetch("https://dummyjson.com/users?limit=100", {
+    const res = await fetch("https://dummyjson.com/users?limit=50", {
       cache: "no-store",
     })
 
@@ -36,21 +36,3 @@ export async function getUsers(): Promise<User[]> {
   }
 }
 
-export async function transformUsersToTableData(
-  users: User[]
-): Promise<TableData[]> {
-  return users.map((user) => ({
-    id: user.id,
-    header: `${user.firstName} ${user.lastName}`,
-    type: "User",
-    status: "Active",
-    target: user.age.toString(),
-    limit: "0",
-    reviewer: user.email,
-  }))
-}
-
-export async function getTableData(): Promise<TableData[]> {
-  const users = await getUsers()
-  return transformUsersToTableData(users)
-}
